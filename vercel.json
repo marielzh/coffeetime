@@ -1,6 +1,6 @@
 {
   "buildCommand": "npm run build",
-  "outputDirectory": "dist/coffeetime/browser",
+  "outputDirectory": "dist/coffeetime",
   "framework": "angular",
   "rewrites": [
     { "source": "/(.*)", "destination": "/index.html" }
