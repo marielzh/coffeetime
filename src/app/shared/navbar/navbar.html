@@ -1,0 +1,48 @@
+<nav class="navbar">
+  <a routerLink="/" class="brand">
+    <i class="bi bi-cup-hot-fill"></i>
+    <span>CoffeeTime</span>
+  </a>
+
+  <div class="nav-links">
+    <a routerLink="/" routerLinkActive="active"
+      [routerLinkActiveOptions]="{exact:true}">
+      <i class="bi bi-house-fill"></i> Inicio
+    </a>
+    <a routerLink="/catalogo" routerLinkActive="active">
+      <i class="bi bi-grid-fill"></i> Menú
+    </a>
+    <a routerLink="/checkout" routerLinkActive="active" class="cart-link">
+      <i class="bi bi-cart-fill"></i>
+      @if (cart.count() > 0) {
+        <span class="badge">{{ cart.count() }}</span>
+      }
+    </a>
+  </div>
+
+  <div class="nav-auth">
+    @if (supabase.isLoggedIn()) {
+      <a routerLink="/perfil" class="user-chip">
+        <i class="bi bi-person-circle"></i>
+        <span>{{ supabase.user()?.email }}</span>
+      </a>
+
+      @if (supabase.isAdmin()) {
+        <a routerLink="/admin" routerLinkActive="active" class="btn-admin">
+          <i class="bi bi-shield-lock-fill"></i> Admin
+        </a>
+      }
+
+      <button class="btn-logout" (click)="signOut()">
+        <i class="bi bi-box-arrow-right"></i> Salir
+      </button>
+    } @else {
+      <a routerLink="/login" class="btn-login">
+        <i class="bi bi-person"></i> Iniciar sesión
+      </a>
+      <a routerLink="/register" class="btn-register">
+        <i class="bi bi-person-plus-fill"></i> Registrarse
+      </a>
+    }
+  </div>
+</nav>

@@ -1,0 +1,325 @@
+<app-navbar />
+
+<main class="checkout">
+
+  <!-- PANTALLA DE ÉXITO Y COMPROBANTE DIGITAL -->
+  @if (success()) {
+    <div class="success-page">
+      <div class="success-card ticket-view">
+        <!-- Icono de éxito -->
+        <div class="success-icon">
+          <i class="bi bi-check-circle-fill"></i>
+        </div>
+        
+        <div class="ticket-header">
+          <h2>COFFEE TIME</h2>
+          <p class="ticket-subtitle">¡Pedido confirmado con éxito!</p>
+          <div class="ticket-divider"></div>
+        </div>
+
+        <div class="ticket-body">
+          <!-- Datos del cliente -->
+          <div class="ticket-row">
+            <span>Cliente:</span>
+            <strong>{{ datosComprobante()?.cliente }}</strong>
+          </div>
+          <div class="ticket-row">
+            <span>Fecha:</span>
+            <strong>{{ datosComprobante()?.fecha | date:'dd/MM/yyyy HH:mm' }}</strong>
+          </div>
+          <div class="ticket-row">
+            <span>Método de pago:</span>
+            <strong>
+              @if (datosComprobante()?.metodo === 'qr') {
+                <i class="bi bi-qr-code"></i> QR BancoSol
+              } @else {
+                <i class="bi bi-cash-stack"></i> Efectivo
+              }
+            </strong>
+          </div>
+
+          <div class="ticket-divider"></div>
+
+          <!-- Lista de productos comprados -->
+          <div class="ticket-items">
+            @for (item of datosComprobante()?.productos; track item.id) {
+              <div class="ticket-item">
+                <span>{{ item.quantity }}x {{ item.name }}</span>
+                <span>Bs. {{ (item.price * item.quantity).toFixed(2) }}</span>
+              </div>
+            }
+          </div>
+
+          <div class="ticket-divider"></div>
+
+          <!-- Totales -->
+          <div class="ticket-totals">
+            <div class="ticket-row">
+              <span>Subtotal:</span>
+              <span>Bs. {{ datosComprobante()?.subtotal.toFixed(2) }}</span>
+            </div>
+            <div class="ticket-row">
+              <span>Costo de envío:</span>
+              <span>Bs. {{ datosComprobante()?.envio.toFixed(2) }}</span>
+            </div>
+            <div class="ticket-row grand-total">
+              <span>TOTAL PAGADO:</span>
+              <strong>Bs. {{ datosComprobante()?.totalFinal.toFixed(2) }}</strong>
+            </div>
+          </div>
+
+          <div class="ticket-divider"></div>
+
+          <!-- Ubicación de entrega -->
+          <div class="ticket-footer">
+            <p><i class="bi bi-geo-alt-fill"></i> Entregar en:</p>
+            <small>{{ address() }}</small>
+            <p class="gracias-msg">¡Gracias por tu compra! Disfruta tu café.</p>
+          </div>
+        </div>
+
+        <button (click)="volverAlMenu()" class="btn-primary btn-ticket-finish">
+          <i class="bi bi-grid-fill"></i> Volver al menú inicial
+        </button>
+      </div>
+    </div>
+  }
+
+  @if (!success()) {
+    <section class="checkout-hero">
+      <p class="checkout-eyebrow">
+        <i class="bi bi-cup-hot-fill"></i> CoffeeTime
+      </p>
+      <h1>Finalizar Pedido</h1>
+      <p>Estás a un paso de disfrutar tu café</p>
+    </section>
+
+    <div class="checkout-layout">
+
+      <!-- FORMULARIO IZQUIERDA -->
+      <div class="checkout-form">
+
+        <!-- DATOS DE ENTREGA -->
+        <div class="form-card">
+          <h3><i class="bi bi-clipboard-fill"></i> Datos de entrega</h3>
+
+          @if (errorMsg()) {
+            <div class="alert-error">
+              <i class="bi bi-exclamation-circle-fill"></i> {{ errorMsg() }}
+            </div>
+          }
+
+          <div class="field">
+            <label><i class="bi bi-person-fill"></i> Nombre completo *</label>
+            <input type="text" [(ngModel)]="name"
+              placeholder="Ej: Ana Pérez" [disabled]="loading()" />
+          </div>
+          <div class="field-row">
+            <div class="field">
+              <label><i class="bi bi-telephone-fill"></i> Teléfono *</label>
+              <input type="tel" [(ngModel)]="phone"
+                placeholder="+591 7xx xxxxx" [disabled]="loading()" />
+            </div>
+            <div class="field">
+              <label><i class="bi bi-envelope-fill"></i> Correo</label>
+              <input type="email"
+                [value]="supabase.user()?.email ?? ''"
+                disabled class="disabled-input" />
+            </div>
+          </div>
+          <div class="field">
+            <label><i class="bi bi-geo-alt-fill"></i> Dirección de entrega *</label>
+            <input type="text" [(ngModel)]="address"
+              placeholder="Calle, número, barrio, referencia"
+              [disabled]="loading()" />
+
+            <!-- BOTONES GPS / MAPA -->
+            <div class="map-actions">
+              <button type="button" class="btn-gps" (click)="usarGPS()" [disabled]="gpsLoading()">
+                @if (gpsLoading()) {
+                  <span class="spinner-sm"></span> Obteniendo ubicación...
+                } @else {
+                  <i class="bi bi-crosshair"></i> Usar mi ubicación GPS
+                }
+              </button>
+              <button type="button" class="btn-map-toggle" (click)="toggleMap()">
+                <i class="bi {{ showMap() ? 'bi-eye-slash' : 'bi-map' }}"></i>
+                {{ showMap() ? 'Ocultar mapa' : 'Elegir en el mapa' }}
+              </button>
+            </div>
+
+            <!-- MAPA LEAFLET -->
+            @if (showMap()) {
+              <div class="map-wrapper">
+                <div class="map-hint">
+                  <i class="bi bi-info-circle-fill"></i>
+                  Arrastrá el pin o tocá el mapa para marcar tu dirección exacta
+                </div>
+                <div id="leaflet-map" class="leaflet-map-container"></div>
+              </div>
+            }
+          </div>
+          <div class="field">
+            <label><i class="bi bi-chat-left-text-fill"></i> Notas del pedido</label>
+            <textarea [(ngModel)]="notes" rows="3"
+              placeholder="Sin azúcar, sin lactosa, toque extra de canela..."
+              [disabled]="loading()"></textarea>
+          </div>
+        </div>
+
+        <!-- MÉTODO DE PAGO -->
+        <div class="form-card">
+          <h3><i class="bi bi-credit-card-fill"></i> Método de pago</h3>
+          <div class="payment-options">
+
+            <!-- EFECTIVO -->
+            <div class="payment-opt"
+              [class.active]="paymentMethod() === 'efectivo'"
+              (click)="setPayment('efectivo')">
+              <i class="bi bi-cash-stack payment-icon"></i>
+              <div class="payment-info">
+                <strong>Efectivo</strong>
+                <p>Pagas al momento de recibir tu pedido</p>
+              </div>
+              @if (paymentMethod() === 'efectivo') {
+                <i class="bi bi-check-circle-fill check"></i>
+              }
+            </div>
+
+            <!-- QR BANCOSOL -->
+            <div class="payment-opt"
+              [class.active]="paymentMethod() === 'qr'"
+              (click)="setPayment('qr')">
+              <i class="bi bi-qr-code payment-icon"></i>
+              <div class="payment-info">
+                <strong>QR BancoSol</strong>
+                <p>Transfiere desde cualquier app bancaria</p>
+              </div>
+              @if (paymentMethod() === 'qr') {
+                <i class="bi bi-check-circle-fill check"></i>
+              }
+            </div>
+
+          </div>
+
+          <!-- PANEL QR -->
+          @if (paymentMethod() === 'qr') {
+            <div class="qr-panel">
+              <div class="qr-header">
+                <i class="bi bi-qr-code-scan"></i>
+                <span>Escanea con tu app bancaria</span>
+              </div>
+              <div class="qr-body">
+                <img [src]="qrImageUrl" alt="QR BancoSol CoffeeTime"
+                  class="qr-image" />
+                <div class="qr-info">
+                  <div class="qr-info-row">
+                    <i class="bi bi-bank"></i>
+                    <span>BancoSol</span>
+                  </div>
+                  <div class="qr-info-row">
+                    <i class="bi bi-person-fill"></i>
+                    <span>Mariel Yessenia Zenteno Hilarion</span>
+                  </div>
+                  <div class="qr-info-row">
+                    <i class="bi bi-credit-card"></i>
+                    <span>Cuenta Nº 3389642-000-001</span>
+                  </div>
+                  <div class="qr-amount">
+                    <span>Monto a pagar:</span>
+                    <strong>Bs. {{ grandTotal().toFixed(2) }}</strong>
+                  </div>
+                </div>
+              </div>
+              <div class="qr-steps">
+                <p><i class="bi bi-1-circle-fill"></i> Abre tu app bancaria</p>
+                <p><i class="bi bi-2-circle-fill"></i> Selecciona "Pagar con QR"</p>
+                <p><i class="bi bi-3-circle-fill"></i> Escanea el código QR</p>
+                <p><i class="bi bi-4-circle-fill"></i> Confirma el monto: <strong>Bs. {{ grandTotal().toFixed(2) }}</strong></p>
+              </div>
+              <label class="qr-confirm-check">
+                <input type="checkbox"
+                  [checked]="qrScanned()"
+                  (change)="qrScanned.set(!qrScanned())" />
+                <i class="bi bi-check2-square"></i>
+                <span>Confirmo que realicé el pago por QR</span>
+              </label>
+            </div>
+          }
+
+        </div>
+      </div>
+
+      <!-- RESUMEN DERECHA -->
+      <div class="order-summary">
+        <div class="summary-card">
+          <h3><i class="bi bi-cart-fill"></i> Resumen del pedido</h3>
+
+          <div class="summary-items">
+            @for (item of items(); track item.id) {
+              <div class="summary-item">
+                <div class="item-img-wrapper">
+                  <img
+                    [src]="item.image || 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=80&q=60'"
+                    [alt]="item.name" class="item-img" />
+                </div>
+                <div class="item-info">
+                  <span class="item-name">{{ item.name }}</span>
+                  <span class="item-qty">
+                    <i class="bi bi-x"></i>{{ item.quantity }}
+                  </span>
+                </div>
+                <div class="item-right">
+                  <span class="item-price">
+                    Bs. {{ (item.price * item.quantity).toFixed(2) }}
+                  </span>
+                  <button class="remove-btn" (click)="removeItem(item.id)">
+                    <i class="bi bi-x-circle-fill"></i>
+                  </button>
+                </div>
+              </div>
+            }
+          </div>
+
+          <div class="summary-totals">
+            <div class="total-row">
+              <span><i class="bi bi-receipt"></i> Subtotal</span>
+              <span>Bs. {{ total().toFixed(2) }}</span>
+            </div>
+            <div class="total-row">
+              <span><i class="bi bi-bicycle"></i> Envío</span>
+              <span>Bs. {{ delivery.toFixed(2) }}</span>
+            </div>
+            <div class="total-row grand">
+              <span>TOTAL</span>
+              <strong>Bs. {{ grandTotal().toFixed(2) }}</strong>
+            </div>
+          </div>
+
+          <div class="payment-selected">
+            <i class="bi {{ paymentMethod() === 'qr' ? 'bi-qr-code' : 'bi-cash-stack' }}"></i>
+            <span>
+              {{ paymentMethod() === 'qr' ? 'Pago con QR BancoSol' : 'Pago en efectivo' }}
+            </span>
+          </div>
+
+          <button
+            class="btn-confirm"
+            [disabled]="loading() || items().length === 0"
+            (click)="confirmarPedido()">
+            @if (loading()) {
+              <span class="spinner"></span> Procesando...
+            } @else {
+              <i class="bi bi-check-circle-fill"></i> Confirmar pedido
+            }
+          </button>
+
+          <button class="btn-back" (click)="volverAlMenu()">
+            <i class="bi bi-arrow-left"></i> Seguir comprando
+          </button>
+        </div>
+      </div>
+
+    </div>
+  }
+</main>

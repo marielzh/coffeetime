@@ -1,0 +1,239 @@
+<app-navbar />
+
+<main class="admin-page">
+
+  <section class="admin-hero">
+    <div class="admin-hero-content">
+      <p class="admin-eyebrow"><i class="bi bi-shield-fill-check"></i> Panel Admin</p>
+      <h1>Dashboard CoffeeTime</h1>
+      <p>Estadísticas en tiempo real de tu cafetería</p>
+    </div>
+    <button class="btn-export" (click)="exportarPDF()">
+      <i class="bi bi-file-earmark-pdf-fill"></i> Exportar PDF
+    </button>
+  </section>
+
+  @if (loading()) {
+    <div class="admin-loading">
+      <div class="spinner-coffee"></div>
+      <p>Cargando estadísticas...</p>
+    </div>
+  }
+
+  @if (!loading()) {
+
+    <div class="kpi-grid">
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:#3e2723">
+          <i class="bi bi-currency-dollar"></i>
+        </div>
+        <div class="kpi-info">
+          <span class="kpi-label">Ingresos totales</span>
+          <strong class="kpi-value">Bs. {{ totalIngresos().toFixed(2) }}</strong>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:#5d4037">
+          <i class="bi bi-bag-check-fill"></i>
+        </div>
+        <div class="kpi-info">
+          <span class="kpi-label">Pedidos totales</span>
+          <strong class="kpi-value">{{ totalPedidos() }}</strong>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:#795548">
+          <i class="bi bi-people-fill"></i>
+        </div>
+        <div class="kpi-info">
+          <span class="kpi-label">Clientes registrados</span>
+          <strong class="kpi-value">{{ totalClientes() }}</strong>
+        </div>
+      </div>
+      <div class="kpi-card">
+        <div class="kpi-icon" style="background:#a1887f">
+          <i class="bi bi-receipt"></i>
+        </div>
+        <div class="kpi-info">
+          <span class="kpi-label">Ticket promedio</span>
+          <strong class="kpi-value">Bs. {{ ticketPromedio().toFixed(2) }}</strong>
+        </div>
+      </div>
+    </div>
+
+    <div class="admin-tabs">
+      <button [class.active]="activeTab() === 'overview'"  (click)="setTab('overview')">
+        <i class="bi bi-grid-fill"></i> Resumen
+      </button>
+      <button [class.active]="activeTab() === 'ventas'"    (click)="setTab('ventas')">
+        <i class="bi bi-graph-up"></i> Ventas
+      </button>
+      <button [class.active]="activeTab() === 'productos'" (click)="setTab('productos')">
+        <i class="bi bi-cup-hot-fill"></i> Productos
+      </button>
+      <button [class.active]="activeTab() === 'clientes'"  (click)="setTab('clientes')">
+        <i class="bi bi-people-fill"></i> Clientes
+      </button>
+      <button [class.active]="activeTab() === 'pedidos'" (click)="setTab('pedidos')">
+        <i class="bi bi-bag-fill"></i> Pedidos
+      </button>
+    </div>
+
+    <div class="admin-content">
+
+      @if (activeTab() === 'overview') {
+        <div class="charts-grid">
+          <div class="chart-card wide">
+            <h4><i class="bi bi-graph-up-arrow"></i> Ingresos últimos 14 días</h4>
+            <div class="chart-wrapper">
+              <canvas baseChart [data]="ingresosData" [options]="ingresosOptions" type="line"></canvas>
+            </div>
+          </div>
+          <div class="chart-card chart-doughnut">
+            <h4><i class="bi bi-pie-chart-fill"></i> Método de pago</h4>
+            <div class="chart-wrapper">
+              <canvas baseChart [data]="pagosData" [options]="pagosOptions" type="doughnut"></canvas>
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (activeTab() === 'ventas') {
+        <div class="charts-grid">
+          <div class="chart-card wide">
+            <h4><i class="bi bi-graph-up-arrow"></i> Ingresos por día</h4>
+            <div class="chart-wrapper">
+              <canvas baseChart [data]="ingresosData" [options]="ingresosOptions" type="line"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="table-card">
+          <h4><i class="bi bi-table"></i> Pedidos recientes</h4>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Fecha</th><th>Cliente</th><th>Total</th><th>Pago</th><th>Estado</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (o of orders().slice(0, 15); track o.id) {
+                  <tr>
+                    <td>{{ o.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+                    <td>{{ o.name ?? '—' }}</td>
+                    <td><strong>Bs. {{ o.total?.toFixed(2) }}</strong></td>
+                    <td>
+                      <span class="badge-pay" [class.qr]="o.payment_method === 'qr'">
+                        {{ o.payment_method === 'qr' ? 'QR' : 'Efectivo' }}
+                      </span>
+                    </td>
+                    <td>
+                      <span class="badge-status {{ o.status }}">{{ o.status }}</span>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+
+      @if (activeTab() === 'productos') {
+        <div class="charts-grid">
+          <div class="chart-card wide">
+            <h4><i class="bi bi-bar-chart-fill"></i> Productos más vendidos</h4>
+            <div class="chart-wrapper">
+              <canvas baseChart [data]="productosData" [options]="productosOptions" type="bar"></canvas>
+            </div>
+          </div>
+        </div>
+      }
+
+      @if (activeTab() === 'clientes') {
+        <div class="charts-grid">
+          <div class="chart-card wide">
+            <h4><i class="bi bi-person-plus-fill"></i> Clientes nuevos últimos 14 días</h4>
+            <div class="chart-wrapper">
+              <canvas baseChart [data]="clientesData" [options]="clientesOptions" type="bar"></canvas>
+            </div>
+          </div>
+        </div>
+        <div class="table-card">
+          <h4><i class="bi bi-people-fill"></i> Todos los clientes</h4>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr><th>Nombre</th><th>Teléfono</th><th>Rol</th><th>Registro</th></tr>
+              </thead>
+              <tbody>
+                @for (p of profiles(); track p.id) {
+                  <tr>
+                    <td>{{ p.full_name ?? '—' }}</td>
+                    <td>{{ p.phone ?? '—' }}</td>
+                    <td>
+                      <span class="badge-role" [class.admin]="p.role === 'admin'">
+                        {{ p.role ?? 'user' }}
+                      </span>
+                    </td>
+                    <td>{{ p.created_at | date:'dd/MM/yyyy' }}</td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+            @if (activeTab() === 'pedidos') {
+        <div class="table-card">
+          <h4><i class="bi bi-bag-fill"></i> Gestión de Pedidos</h4>
+          <div class="table-wrapper">
+            <table>
+              <thead>
+                <tr>
+                  <th>Fecha</th>
+                  <th>Cliente</th>
+                  <th>Teléfono</th>
+                  <th>Total</th>
+                  <th>Pago</th>
+                  <th>Estado</th>
+                  <th>Acciones</th>
+                </tr>
+              </thead>
+              <tbody>
+                @for (o of orders(); track o.id) {
+                  <tr>
+                    <td>{{ o.created_at | date:'dd/MM/yyyy HH:mm' }}</td>
+                    <td>{{ o.name ?? '—' }}</td>
+                    <td>{{ o.phone ?? '—' }}</td>
+                    <td><strong>Bs. {{ o.total?.toFixed(2) }}</strong></td>
+                    <td>
+                      <span class="badge-pay" [class.qr]="o.payment_method === 'qr'">
+                        {{ o.payment_method === 'qr' ? 'QR' : 'Efectivo' }}
+                      </span>
+                    </td>
+                    <td>
+                      <select class="status-select {{ o.status }}"
+                              [value]="o.status"
+                              (change)="updateOrderStatus(o.id, $any($event.target).value)">
+                        <option value="pending">Pendiente</option>
+                        <option value="processing">En proceso</option>
+                        <option value="delivered">Entregado</option>
+                        <option value="cancelled">Cancelado</option>
+                      </select>
+                    </td>
+                    <td>
+                      <button class="btn-delete-order" (click)="deleteOrder(o.id)">
+                        <i class="bi bi-trash-fill"></i>
+                      </button>
+                    </td>
+                  </tr>
+                }
+              </tbody>
+            </table>
+          </div>
+        </div>
+      }
+
+    </div>
+  }
+</main>

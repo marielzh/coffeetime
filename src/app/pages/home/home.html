@@ -1,0 +1,286 @@
+<app-navbar />
+
+<main class="home">
+
+  <!-- HERO -->
+  <section class="hero">
+    <div class="hero-content">
+      <p class="hero-eyebrow">
+        <i class="bi bi-cup-hot-fill"></i> Bienvenido a CoffeeTime
+      </p>
+      <h1>El mejor café<br><span>de la ciudad</span></h1>
+      <p class="hero-sub">
+        Granos seleccionados · Sabor artesanal · Entrega rápida a tu puerta
+      </p>
+      <div class="hero-actions">
+        <a routerLink="/catalogo" class="btn-primary">
+          Ordenar ahora <i class="bi bi-arrow-right"></i>
+        </a>
+        <a routerLink="/catalogo" class="btn-ghost">
+          <i class="bi bi-grid-fill"></i> Ver menú completo
+        </a>
+      </div>
+      <div class="hero-stats">
+        <div class="stat">
+          <strong>500+</strong>
+          <span>Clientes felices</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <strong>35+</strong>
+          <span>Tipos de café</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat">
+          <strong>30min</strong>
+          <span>Entrega rápida</span>
+        </div>
+      </div>
+    </div>
+    <div class="hero-visual">
+      <div class="hero-img-wrapper">
+        <img
+          src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=500&q=80"
+          alt="Café artesanal CoffeeTime" class="hero-img" />
+        <div class="hero-badge">
+          <i class="bi bi-star-fill"></i>
+          <div>
+            <strong>4.9/5</strong>
+            <span>+200 reseñas</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CATEGORÍAS -->
+  <section class="categories">
+    <div class="categories-inner">
+      @for (cat of categories; track cat.label) {
+        <a routerLink="/catalogo" class="cat-chip">
+          <i class="bi {{ cat.icon }}"></i>
+          <span>{{ cat.label }}</span>
+        </a>
+      }
+    </div>
+  </section>
+
+  <!-- PRODUCTOS DESTACADOS -->
+  <section class="featured">
+    <div class="section-header">
+      <div>
+        <h2>Productos Destacados</h2>
+        <p class="section-sub">Los favoritos de nuestros clientes</p>
+      </div>
+      <a routerLink="/catalogo" class="ver-todo">
+        Ver todo el menú <i class="bi bi-arrow-right"></i>
+      </a>
+    </div>
+    <div class="products-grid">
+      @for (product of featured; track product.id) {
+        <div class="product-card">
+          <div class="product-img-wrapper">
+            <img [src]="product.image" [alt]="product.name" class="product-img" />
+            <span class="product-badge">
+              <i class="bi bi-star-fill"></i> Destacado
+            </span>
+          </div>
+          <div class="product-body">
+            <div class="product-category">
+              <i class="bi {{ product.icon }}"></i> {{ product.category }}
+            </div>
+            <h3>{{ product.name }}</h3>
+            <p>{{ product.description }}</p>
+            <div class="product-footer">
+              <span class="price">Bs. {{ product.price.toFixed(2) }}</span>
+              <a routerLink="/catalogo" class="btn-add">
+                <i class="bi bi-plus-circle-fill"></i> Agregar
+              </a>
+            </div>
+          </div>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- BENEFICIOS -->
+  <section class="benefits">
+    <div class="benefits-header">
+      <h2>¿Por qué CoffeeTime?</h2>
+      <p>Calidad y experiencia en cada taza</p>
+    </div>
+    <div class="benefits-grid">
+      @for (b of benefits; track b.title) {
+        <div class="benefit-card">
+          <div class="benefit-icon-wrapper">
+            <i class="bi {{ b.icon }}"></i>
+          </div>
+          <h4>{{ b.title }}</h4>
+          <p>{{ b.desc }}</p>
+        </div>
+      }
+    </div>
+  </section>
+
+  <!-- CTA BANNER -->
+  <section class="cta-banner">
+    <div class="cta-content">
+      <h2>¿Listo para tu próximo café?</h2>
+      <p>Regístrate y obtén un 10% de descuento en tu primer pedido</p>
+      <div class="cta-actions">
+        <a routerLink="/register" class="btn-primary">
+          <i class="bi bi-person-plus-fill"></i> Crear cuenta gratis
+        </a>
+        <a routerLink="/catalogo" class="btn-ghost-dark">
+          <i class="bi bi-grid-fill"></i> Ver el menú
+        </a>
+      </div>
+    </div>
+    <div class="cta-img-wrapper">
+      <img
+        src="https://images.unsplash.com/photo-1442512595331-e89e73853f31?w=400&q=80"
+        alt="CoffeeTime promoción" />
+    </div>
+  </section>
+
+  <!-- GALERÍA -->
+  <section class="gallery">
+    <div class="gallery-header">
+      <h2>Nuestra Cafetería</h2>
+      <p>Un espacio pensado para disfrutar</p>
+    </div>
+    <div class="gallery-grid">
+      <div class="gallery-item big">
+        <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=600&q=80" alt="Interior" />
+      </div>
+      <div class="gallery-item">
+        <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=300&q=80" alt="Latte art" />
+      </div>
+      <div class="gallery-item">
+        <img src="https://images.unsplash.com/photo-1501339847302-ac426a4a7cbb?w=300&q=80" alt="Granos" />
+      </div>
+      <div class="gallery-item">
+        <img src="https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?w=300&q=80" alt="Barista" />
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- AYUDA -->
+<section class="ayuda">
+  <div class="ayuda-header">
+    <h2>¿Necesitas ayuda?</h2>
+    <p>Estamos aquí para ti, es muy fácil hacer tu pedido</p>
+  </div>
+
+  <div class="ayuda-grid">
+    <!-- Pasos -->
+    <div class="ayuda-pasos">
+      <h3><i class="bi bi-list-ol"></i> ¿Cómo hacer un pedido?</h3>
+      <div class="pasos-lista">
+        <div class="paso">
+          <div class="paso-num">1</div>
+          <div class="paso-info">
+            <strong>Explora el menú</strong>
+            <p>Entra a <a routerLink="/catalogo">Menú</a> y elige tus productos favoritos.</p>
+          </div>
+        </div>
+        <div class="paso">
+          <div class="paso-num">2</div>
+          <div class="paso-info">
+            <strong>Agrega al carrito</strong>
+            <p>Toca el botón "Agregar" en cada producto que desees.</p>
+          </div>
+        </div>
+        <div class="paso">
+          <div class="paso-num">3</div>
+          <div class="paso-info">
+            <strong>Confirma tu pedido</strong>
+            <p>Ve al carrito <i class="bi bi-cart-fill"></i>, revisa tu orden y completa el checkout.</p>
+          </div>
+        </div>
+        <div class="paso">
+          <div class="paso-num">4</div>
+          <div class="paso-info">
+            <strong>¡Disfruta tu café!</strong>
+            <p>Recibe tu pedido en casa en menos de 30 minutos.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  <!-- Contacto WhatsApp -->
+  <div class="ayuda-contacto">
+    <div class="wa-card">
+      <div class="wa-icon">
+        <i class="bi bi-whatsapp"></i>
+      </div>
+      <h3>¿Tienes dudas?</h3>
+      <p>Escríbenos por WhatsApp y te respondemos al instante. Estamos disponibles de <strong>7am a 9pm</strong>.</p>
+      
+      <!-- AQUÍ ESTABA EL ERROR: Faltaba el "<a" inicial -->
+      <a href="https://wa.me/59177890161?text=Hola%20CoffeeTime!%20Necesito%20ayuda%20con%20mi%20pedido"
+        target="_blank"
+        class="btn-whatsapp">
+        <i class="bi bi-whatsapp"></i> Chatear por WhatsApp
+      </a>
+
+      <div class="contacto-extra">
+        <p><i class="bi bi-clock-fill"></i> Lun–Sáb: 7am – 9pm</p>
+        <p><i class="bi bi-geo-alt-fill"></i> Tarija, Bolivia</p>
+      </div>
+    </div>
+  </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="footer">
+  <div class="footer-top">
+    <div class="footer-brand-col">
+      <div class="footer-logo">
+        <i class="bi bi-cup-hot-fill"></i> CoffeeTime
+      </div>
+      <p>La mejor cafetería artesanal online de Tarija. Café de origen, postres caseros y entrega rápida.</p>
+      <div class="social-links">
+        <a href="#" class="social-btn"><i class="bi bi-facebook"></i> Facebook</a>
+        <a href="#" class="social-btn"><i class="bi bi-instagram"></i> Instagram</a>
+        <a href="#" class="social-btn"><i class="bi bi-twitter-x"></i> Twitter</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Navegación</h4>
+      <a routerLink="/"><i class="bi bi-house-fill"></i> Inicio</a>
+      <a routerLink="/catalogo"><i class="bi bi-grid-fill"></i> Menú</a>
+      <a routerLink="/perfil"><i class="bi bi-person-fill"></i> Mi cuenta</a>
+      <a routerLink="/register"><i class="bi bi-person-plus-fill"></i> Registrarse</a>
+    </div>
+    <div class="footer-col">
+      <h4>Categorías</h4>
+      <a routerLink="/catalogo"><i class="bi bi-cup-hot-fill"></i> Café Caliente</a>
+      <a routerLink="/catalogo"><i class="bi bi-snow"></i> Café Frío</a>
+      <a routerLink="/catalogo"><i class="bi bi-cup-straw"></i> Frappés</a>
+      <a routerLink="/catalogo"><i class="bi bi-droplet-fill"></i> Tés</a>
+      <a routerLink="/catalogo"><i class="bi bi-cake2-fill"></i> Postres</a>
+      <a routerLink="/catalogo"><i class="bi bi-gift-fill"></i> Combos</a>
+    </div>
+    <div class="footer-col">
+      <h4>Contacto</h4>
+      <p><i class="bi bi-envelope-fill"></i> hola&#64;coffeetime.com</p>
+      <p><i class="bi bi-telephone-fill"></i> +591 77890161</p>
+      <p><i class="bi bi-geo-alt-fill"></i> Tarija, Bolivia</p>
+      <p><i class="bi bi-clock-fill"></i> Lun–Sáb: 7am – 9pm</p>
+    </div>
+  </div>
+  <div class="footer-imgs">
+    <img src="https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=150&h=100&fit=crop&q=70" alt="café" />
+    <img src="https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?w=150&h=100&fit=crop&q=70" alt="latte" />
+    <img src="https://images.unsplash.com/photo-1542181961-9590d0c79dab?w=150&h=100&fit=crop&q=70" alt="postre" />
+    <img src="https://images.unsplash.com/photo-1554118811-1e0d58224f24?w=150&h=100&fit=crop&q=70" alt="ambiente" />
+    <img src="https://images.unsplash.com/photo-1600093463592-8e36ae95ef56?w=150&h=100&fit=crop&q=70" alt="barista" />
+  </div>
+  <div class="footer-bottom">
+    <span>© 2026 CoffeeTime — Todos los derechos reservados</span>
+    <span><i class="bi bi-cup-hot-fill"></i> Hecho con amor en Tarija, Bolivia</span>
+  </div>
+</footer>

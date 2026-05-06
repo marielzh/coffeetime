@@ -1,0 +1,185 @@
+<app-navbar />
+
+<main class="catalogo">
+  <section class="cat-hero">
+    <div class="cat-hero-content">
+      <p class="cat-eyebrow">
+        <i class="bi bi-cup-hot-fill"></i> CoffeeTime
+      </p>
+      <h1>Nuestro Menú</h1>
+      <p>Descubre todos nuestros productos artesanales</p>
+
+      <!-- BUSCADOR -->
+      <div class="search-wrapper">
+        <i class="bi bi-search search-icon"></i>
+        <input
+          type="text"
+          class="search-input"
+          placeholder="Buscar café, postre, combo..."
+          [ngModel]="searchQuery()"
+          (ngModelChange)="searchQuery.set($event)" />
+        @if (searchQuery()) {
+          <button class="search-clear" (click)="clearSearch()">
+            <i class="bi bi-x-circle-fill"></i>
+          </button>
+        }
+      </div>
+
+      <!-- LINK COMPARTIBLE -->
+      <div class="share-bar">
+        <span><i class="bi bi-share-fill"></i> Comparte el menú:</span>
+        <button class="share-btn" (click)="copyMenuLink()">
+          <i class="bi bi-link-45deg"></i> Copiar link
+        </button>
+        <a [href]="whatsappShare()"
+          target="_blank"
+          class="share-btn whatsapp">
+          <i class="bi bi-whatsapp"></i> WhatsApp
+        </a>
+      </div>
+
+      @if (linkCopied()) {
+        <div class="copy-toast">
+          <i class="bi bi-check-circle-fill"></i> ¡Link copiado al portapapeles!
+        </div>
+      }
+
+    </div>
+  </section>
+
+  <div class="catalogo-layout">
+
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <h3><i class="bi bi-funnel-fill"></i> Categorías</h3>
+      <ul class="cat-list">
+        @for (cat of categories; track cat.label) {
+          <li>
+            <button
+              class="cat-btn"
+              [class.active]="activeCategory() === cat.label"
+              (click)="setCategory(cat.label)">
+              <i class="bi {{ cat.icon }}"></i>
+              <span>{{ cat.label }}</span>
+              <span class="cat-count">{{ getCategoryCount(cat.label) }}</span>
+            </button>
+          </li>
+        }
+      </ul>
+      <div class="sidebar-info">
+        <i class="bi bi-rocket-fill"></i>
+        <h4>Entrega rápida</h4>
+        <p>Menos de 30 minutos en toda la ciudad</p>
+      </div>
+    </aside>
+
+    <!-- CONTENIDO -->
+    <section class="products-section">
+      <div class="products-topbar">
+        <div class="topbar-left">
+          <h2>
+            @if (searchQuery()) {
+              Resultados para "{{ searchQuery() }}"
+            } @else {
+              {{ activeCategory() }}
+            }
+          </h2>
+          <span class="product-count">{{ filtered().length }} productos</span>
+        </div>
+        @if (!supabase.isLoggedIn()) {
+          <div class="login-notice">
+            <i class="bi bi-lock-fill"></i>
+            <span>Inicia sesión para agregar al carrito</span>
+            <span class="login-link" (click)="goToLogin()">Iniciar sesión</span>
+          </div>
+        }
+      </div>
+
+      <!-- SKELETON LOADING — Patrón UX #1 -->
+      @if (loading()) {
+        <div class="products-grid">
+          @for (i of [1,2,3,4,5,6]; track i) {
+            <div class="skeleton-card">
+              <div class="skeleton-img"></div>
+              <div class="skeleton-body">
+                <div class="skeleton-line"></div>
+                <div class="skeleton-line short"></div>
+                <div class="skeleton-line shorter"></div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+      <!-- EMPTY STATE — Patrón UX #2 -->
+      @if (!loading() && filtered().length === 0) {
+        <div class="empty-state">
+          <i class="bi bi-search"></i>
+          <h3>Sin resultados</h3>
+          <p>
+            @if (searchQuery()) {
+              No encontramos productos para "{{ searchQuery() }}"
+            } @else {
+              No hay productos en esta categoría
+            }
+          </p>
+          <button class="btn-ver-todos" (click)="setCategory('Todos')">
+            <i class="bi bi-arrow-left"></i> Ver todos
+          </button>
+        </div>
+      }
+
+      <!-- GRID PRODUCTOS -->
+      @if (!loading() && filtered().length > 0) {
+        <div class="products-grid">
+          @for (product of filtered(); track product.id) {
+            <div class="product-card" [class.in-cart]="isInCart(product.id)">
+              <div class="product-img-wrapper">
+                <img
+                  [src]="product.image_url || 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=400&q=80'"
+                  [alt]="product.name"
+                  class="product-img"
+                  (error)="onImgError($event)" />
+                <div class="product-category-tag">
+                  <i class="bi {{ getCategoryIcon(product.category) }}"></i>
+                  {{ product.category }}
+                </div>
+                @if (isInCart(product.id)) {
+                  <div class="in-cart-overlay">
+                    <i class="bi bi-check-circle-fill"></i> En carrito
+                  </div>
+                }
+              </div>
+              <div class="product-body">
+                <h3>{{ product.name }}</h3>
+                <p>{{ product.description }}</p>
+                <div class="product-footer">
+                  <span class="price">Bs. {{ product.price.toFixed(2) }}</span>
+                  <!-- FEEDBACK VISUAL — Patrón UX #3 -->
+                  <button
+                    class="btn-add"
+                    [class.added]="addedId() === product.id"
+                    (click)="addToCart(product)">
+                    @if (addedId() === product.id) {
+                      <i class="bi bi-check-circle-fill"></i> Agregado
+                    } @else {
+                      <i class="bi bi-plus-circle-fill"></i> Agregar
+                    }
+                  </button>
+                </div>
+              </div>
+            </div>
+          }
+        </div>
+      }
+
+    </section>
+  </div>
+</main>
+
+<footer class="footer">
+  <div class="footer-bottom">
+    <span>© 2026 CoffeeTime</span>
+    <span><i class="bi bi-cup-hot-fill"></i> Hecho con amor en Tarija, Bolivia</span>
+  </div>
+</footer>

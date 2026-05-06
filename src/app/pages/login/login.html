@@ -1,0 +1,30 @@
+<div class="login-page">
+  <div class="login-card">
+    <a routerLink="/" class="brand">CoffeeTime</a>
+    <h1>Iniciar sesión</h1>
+    <p class="subtitle">Bienvenido de vuelta</p>
+
+    @if (errorMsg()) {
+      <div class="alert-error">{{ errorMsg() }}</div>
+    }
+
+    <div class="field">
+      <label>Email</label>
+      <input type="email" [(ngModel)]="email" placeholder="tu@email.com" [disabled]="loading()" />
+    </div>
+
+    <div class="field">
+      <label>Contraseña</label>
+      <input type="password" [(ngModel)]="password" placeholder="••••••••" [disabled]="loading()" />
+    </div>
+
+    <button (click)="login()" [disabled]="loading()" class="btn-submit">
+      {{ loading() ? 'Iniciando sesión...' : 'Iniciar sesión' }}
+    </button>
+
+    <p class="switch">
+      ¿No tienes cuenta?
+      <a routerLink="/register">Regístrate aquí</a>
+    </p>
+  </div>
+</div>

@@ -1,0 +1,43 @@
+<div class="register-page">
+  <div class="register-card">
+
+    <a routerLink="/" class="brand">☕ CoffeeTime</a>
+    <h1>Crear cuenta</h1>
+    <p class="subtitle">Únete a la familia CoffeeTime</p>
+
+    @if (errorMsg()) {
+      <div class="alert-error">{{ errorMsg() }}</div>
+    }
+    @if (successMsg()) {
+      <div class="alert-success">{{ successMsg() }}</div>
+    }
+
+    <div class="field">
+      <label>Email</label>
+      <input type="email" [(ngModel)]="email"
+        placeholder="tu@email.com" [disabled]="loading()" />
+    </div>
+
+    <div class="field">
+      <label>Contraseña</label>
+      <input type="password" [(ngModel)]="password"
+        placeholder="Mínimo 6 caracteres" [disabled]="loading()" />
+    </div>
+
+    <div class="field">
+      <label>Confirmar contraseña</label>
+      <input type="password" [(ngModel)]="confirm"
+        placeholder="Repite tu contraseña" [disabled]="loading()" />
+    </div>
+
+    <button (click)="register()" [disabled]="loading()" class="btn-submit">
+      {{ loading() ? 'Creando cuenta...' : 'Crear cuenta' }}
+    </button>
+
+    <p class="switch">
+      ¿Ya tienes cuenta?
+      <a routerLink="/login">Inicia sesión</a>
+    </p>
+
+  </div>
+</div>

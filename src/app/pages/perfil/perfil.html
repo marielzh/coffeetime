@@ -1,0 +1,236 @@
+<app-navbar />
+
+<main class="perfil-page">
+
+  <!-- HERO -->
+  <section class="perfil-hero">
+    <div class="perfil-hero-content">
+      <div class="avatar">
+        <i class="bi bi-person-circle"></i>
+      </div>
+      <div>
+        <h1>{{ fullName() || supabase.user()?.email }}</h1>
+        <p><i class="bi bi-envelope-fill"></i> {{ supabase.user()?.email }}</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- TABS -->
+  <div class="tabs-wrapper">
+    <div class="tabs">
+      <button class="tab-btn" [class.active]="activeTab() === 'perfil'"
+        (click)="setTab('perfil')">
+        <i class="bi bi-person-fill"></i> Mi Perfil
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'pedidos'"
+        (click)="setTab('pedidos')">
+        <i class="bi bi-bag-fill"></i> Mis Pedidos
+        @if (orders().length > 0) {
+          <span class="tab-badge">{{ orders().length }}</span>
+        }
+      </button>
+      <button class="tab-btn" [class.active]="activeTab() === 'resenas'"
+        (click)="setTab('resenas')">
+        <i class="bi bi-star-fill"></i> Mis Reseñas
+        @if (reviews().length > 0) {
+          <span class="tab-badge">{{ reviews().length }}</span>
+        }
+      </button>
+    </div>
+  </div>
+
+  <div class="perfil-content">
+
+    <!-- TAB: MI PERFIL -->
+    @if (activeTab() === 'perfil') {
+      <div class="tab-panel">
+        <div class="form-card">
+          <h3><i class="bi bi-pencil-fill"></i> Editar información</h3>
+
+          @if (errorMsg()) {
+            <div class="alert-error">
+              <i class="bi bi-exclamation-circle-fill"></i> {{ errorMsg() }}
+            </div>
+          }
+          @if (successMsg()) {
+            <div class="alert-success">
+              <i class="bi bi-check-circle-fill"></i> {{ successMsg() }}
+            </div>
+          }
+
+          @if (loading()) {
+            <div class="skeleton-form">
+              <div class="skeleton-line"></div>
+              <div class="skeleton-line"></div>
+              <div class="skeleton-line short"></div>
+            </div>
+          } @else {
+            <div class="field">
+              <label><i class="bi bi-person-fill"></i> Nombre completo</label>
+              <input type="text" [(ngModel)]="fullName"
+                placeholder="Tu nombre completo" />
+            </div>
+            <div class="field-row">
+              <div class="field">
+                <label><i class="bi bi-telephone-fill"></i> Teléfono</label>
+                <input type="tel" [(ngModel)]="phone"
+                  placeholder="+591 7xx xxxxx" />
+              </div>
+              <div class="field">
+                <label><i class="bi bi-envelope-fill"></i> Correo</label>
+                <input type="email" [value]="supabase.user()?.email ?? ''"
+                  disabled class="disabled-input" />
+              </div>
+            </div>
+            <div class="field">
+              <label><i class="bi bi-geo-alt-fill"></i> Dirección</label>
+              <input type="text" [(ngModel)]="address"
+                placeholder="Tu dirección de entrega habitual" />
+            </div>
+            <button class="btn-save" [disabled]="saving()" (click)="saveProfile()">
+              @if (saving()) {
+                <span class="spinner"></span> Guardando...
+              } @else {
+                <i class="bi bi-check-circle-fill"></i> Guardar cambios
+              }
+            </button>
+          }
+        </div>
+      </div>
+    }
+
+    <!-- TAB: MIS PEDIDOS -->
+    @if (activeTab() === 'pedidos') {
+      <div class="tab-panel">
+
+        @if (loadingOrders()) {
+          <div class="skeleton-list">
+            @for (i of [1,2,3]; track i) {
+              <div class="skeleton-card">
+                <div class="skeleton-img"></div>
+                <div class="skeleton-body">
+                  <div class="skeleton-line"></div>
+                  <div class="skeleton-line short"></div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        @if (!loadingOrders() && orders().length === 0) {
+          <div class="empty-state">
+            <i class="bi bi-bag-x-fill"></i>
+            <h3>No tienes pedidos aún</h3>
+            <p>¡Haz tu primer pedido ahora!</p>
+            <a routerLink="/catalogo" class="btn-primary">
+              <i class="bi bi-grid-fill"></i> Ver menú
+            </a>
+          </div>
+        }
+
+        @if (!loadingOrders() && orders().length > 0) {
+          <div class="orders-list">
+            @for (order of orders(); track order.id) {
+              <div class="order-card">
+                <div class="order-header">
+                  <div class="order-id">
+                    <i class="bi bi-receipt-cutoff"></i>
+                    Pedido #{{ order.id.slice(0,8).toUpperCase() }}
+                  </div>
+                  <span class="order-status" [class]="getStatusClass(order.status)">
+                    <i class="bi bi-circle-fill"></i>
+                    {{ getStatusLabel(order.status) }}
+                  </span>
+                </div>
+                <div class="order-body">
+                  <div class="order-items">
+                    @for (item of order.items; track item.id) {
+                      <div class="order-item-row">
+                        <img [src]="item.image || 'https://images.unsplash.com/photo-1509042239860-f550ce710b93?w=60&q=60'"
+                          [alt]="item.name" />
+                        <span>{{ item.name }}</span>
+                        <span class="item-qty">x{{ item.quantity }}</span>
+                        <span class="item-price">${{ (item.price * item.quantity).toFixed(2) }}</span>
+                      </div>
+                    }
+                  </div>
+                  <div class="order-footer">
+                    <span class="order-date">
+                      <i class="bi bi-calendar-fill"></i>
+                      {{ order.created_at | date:'dd/MM/yyyy HH:mm' }}
+                    </span>
+                    <span class="order-total">
+                      Total: <strong>${{ order.total.toFixed(2) }}</strong>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+      </div>
+    }
+
+    <!-- TAB: MIS RESEÑAS -->
+    @if (activeTab() === 'resenas') {
+      <div class="tab-panel">
+
+        @if (loadingReviews()) {
+          <div class="skeleton-list">
+            @for (i of [1,2]; track i) {
+              <div class="skeleton-card">
+                <div class="skeleton-body">
+                  <div class="skeleton-line"></div>
+                  <div class="skeleton-line short"></div>
+                </div>
+              </div>
+            }
+          </div>
+        }
+
+        @if (!loadingReviews() && reviews().length === 0) {
+          <div class="empty-state">
+            <i class="bi bi-star"></i>
+            <h3>No has dejado reseñas aún</h3>
+            <p>¡Compra un producto y comparte tu experiencia!</p>
+            <a routerLink="/catalogo" class="btn-primary">
+              <i class="bi bi-grid-fill"></i> Ver menú
+            </a>
+          </div>
+        }
+
+        @if (!loadingReviews() && reviews().length > 0) {
+          <div class="reviews-list">
+            @for (review of reviews(); track review.id) {
+              <div class="review-card">
+                <div class="review-header">
+                  <div class="review-product">
+                    <i class="bi bi-cup-hot-fill"></i>
+                    {{ review.products?.name ?? 'Producto' }}
+                  </div>
+                  <button class="delete-btn" (click)="deleteReview(review.id)">
+                    <i class="bi bi-trash-fill"></i> Eliminar
+                  </button>
+                </div>
+                <div class="review-stars">
+                  @for (star of getStars(5); track star) {
+                    <i class="bi {{ getRatingIcon(star, review.rating) }}"></i>
+                  }
+                  <span>({{ review.rating }}/5)</span>
+                </div>
+                <p class="review-comment">{{ review.comment }}</p>
+                <span class="review-date">
+                  <i class="bi bi-calendar-fill"></i>
+                  {{ review.created_at | date:'dd/MM/yyyy' }}
+                </span>
+              </div>
+            }
+          </div>
+        }
+
+      </div>
+    }
+
+  </div>
+</main>

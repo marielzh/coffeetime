@@ -1,0 +1,75 @@
+.navbar {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 100;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 0 2.5rem; height: 64px;
+  background: #3e2723;
+  box-shadow: 0 2px 16px rgba(0,0,0,.35);
+}
+.brand {
+  display: flex; align-items: center; gap: 10px;
+  text-decoration: none; color: #efebe9;
+  font-size: 20px; font-weight: 700; letter-spacing: 1px;
+}
+.brand i { font-size: 24px; color: #a1887f; }
+.nav-links { display: flex; align-items: center; gap: 8px; }
+.nav-links a {
+  display: flex; align-items: center; gap: 6px;
+  color: #d7ccc8; text-decoration: none; font-size: 14px;
+  padding: 6px 14px; border-radius: 8px;
+  transition: all .2s;
+}
+.nav-links a:hover  { background: rgba(255,255,255,.08); color: #efebe9; }
+.nav-links a.active { background: rgba(255,255,255,.12); color: #efebe9; font-weight: 600; }
+.cart-link { position: relative; font-size: 18px; padding: 6px 14px; }
+.badge {
+  position: absolute; top: 2px; right: 4px;
+  background: #a1887f; color: #fff; border-radius: 50%;
+  width: 18px; height: 18px; font-size: 10px;
+  display: flex; align-items: center; justify-content: center; font-weight: 700;
+}
+.nav-auth { display: flex; align-items: center; gap: 8px; }
+.user-chip {
+  display: flex; align-items: center; gap: 8px;
+  color: #d7ccc8; text-decoration: none; font-size: 13px;
+  background: rgba(255,255,255,.06); border-radius: 8px;
+  padding: 6px 12px; max-width: 200px;
+}
+.user-chip i  { font-size: 18px; color: #a1887f; flex-shrink: 0; }
+.user-chip span { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.btn-login, .btn-register, .btn-logout {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 16px; border-radius: 8px; font-size: 13px;
+  font-weight: 600; cursor: pointer; text-decoration: none;
+  transition: all .2s; border: none;
+}
+.btn-login    { background: transparent; color: #efebe9; border: 1.5px solid #8d6e63; }
+.btn-login:hover { background: #5d4037; }
+.btn-register { background: #8d6e63; color: #fff; }
+.btn-register:hover { background: #a1887f; }
+.btn-logout   { background: #4e342e; color: #efebe9; }
+.btn-logout:hover { background: #6d4c41; }
+
+/* ── NUEVO: botón Admin ── */
+.btn-admin {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 8px; font-size: 13px;
+  font-weight: 600; text-decoration: none;
+  background: rgba(161,136,127,.2);
+  color: #ffccbc;
+  border: 1.5px solid #a1887f;
+  transition: all .2s;
+}
+.btn-admin:hover,
+.btn-admin.active {
+  background: #a1887f;
+  color: #fff;
+  border-color: #a1887f;
+}
+
+@media (max-width: 768px) {
+  .navbar { padding: 0 1rem; }
+  .nav-links a span { display: none; }
+  .user-chip span { display: none; }
+  .btn-login span, .btn-register span, .btn-logout span { display: none; }
+  .btn-admin span { display: none; }
+}
